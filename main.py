@@ -1,6 +1,7 @@
 import random
 
 balance = 100
+REWARD_AMOUNT = 35
 
 print("\n" + "-" * 30)
 print("!!!! Welcome to the Snake Eyes game !!!!")
@@ -29,7 +30,7 @@ while balance > 0:
 
     if dice1 == 1 and dice2 == 1:
         print("Snake eyes! You earned bonus points!")
-        balance = balance + points * 35
+        balance = balance + points * REWARD_AMOUNT
     else:
         print(f"You used {points} points.")
         balance = balance - points
