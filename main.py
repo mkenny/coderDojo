@@ -9,6 +9,25 @@ def calculate_balance(balance, points, dice1, dice2):
     return balance - points
 
 
+def draw_dice(number):
+    faces = {
+        1: ["       ", "   o   ", "       "],
+        2: [" o     ", "       ", "     o "],
+        3: [" o     ", "   o   ", "     o "],
+        4: [" o   o ", "       ", " o   o "],
+        5: [" o   o ", "   o   ", " o   o "],
+        6: [" o   o ", " o   o ", " o   o "],
+    }
+    if number not in faces:
+        raise ValueError("A dice face must be a number from 1 to 6.")
+
+    lines = ["+-------+"]
+    for row in faces[number]:
+        lines.append("|" + row + "|")
+    lines.append("+-------+")
+    return "\n".join(lines)
+
+
 print("\n" + "-" * 30)
 print("!!!! Welcome to the Snake Eyes game !!!!")
 print("-" * 30)
@@ -36,6 +55,8 @@ while balance > 0:
     dice1 = random.randint(1, 6)
     dice2 = random.randint(1, 6)
     print(f"You rolled: {dice1}, {dice2}")
+    print(draw_dice(dice1))
+    print(draw_dice(dice2))
 
     if dice1 == 1 and dice2 == 1:
         print("Snake eyes! You earned bonus points!")
