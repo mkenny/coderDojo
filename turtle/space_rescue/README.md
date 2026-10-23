@@ -6,13 +6,13 @@
 - Use a game loop with `ontimer` so things keep moving while you press keys.
 - Make astronauts and asteroids fall from the sky, and rescue the astronauts.
 - Keep score, lose lives, use your own pictures, and make the game get harder as you go.
-- Add a fuel gauge and sounds.
+- Add a fuel gauge, sounds and an explosion.
 
 This builds on the [turtle race](../turtle_race/): you'll use functions that make turtles, lists of turtles, `random`, and `distance()` again.
 
 ## The game
 
-You fly a rocket along the bottom of the screen. Astronauts float down from the top, along with dangerous asteroids. Fly into an astronaut to rescue them and score a point; get hit by an asteroid and you lose a life. The rocket burns fuel as it flies, so collect fuel cells to keep the tank topped up. Lose all three lives or run out of fuel and it's game over. Every 10 astronauts you rescue, everything falls a bit faster.
+You fly a starship along the bottom of the screen. Astronauts float down from the top, along with dangerous asteroids. Fly into an astronaut to rescue them and score a point; get hit by an asteroid and you lose a life. The ship burns fuel as it flies, so collect fuel cells to keep the tank topped up. Lose all three lives or run out of fuel and it's game over. Every 10 astronauts you rescue, everything falls a bit faster.
 
 ## Run the game
 
@@ -30,8 +30,10 @@ Hold the **Left** and **Right** arrow keys to move. If the keys don't work, clic
 - `assets/` – all the pictures and sounds. In the code, their names start with `assets/`, for example `"assets/player.gif"`.
   - Pictures (they must be `.gif` files for turtle to use them):
     - `space.gif` – the background
-    - `player.gif`, `player_left.gif`, `player_right.gif` – the rocket standing still and leaning each way
+    - `player.gif`, `player_left.gif`, `player_right.gif` – the ship flying straight and leaning each way
     - `astronaut.gif`, `asteroid.gif`, `fuel.gif` – the falling things
+    - `damage1.gif`, `damage2.gif` – damage shown on the ship after each asteroid hit
+    - `explosion.gif` – shown when the ship explodes at game over
   - Sounds (used in Step 9): `rocket.wav` (the engine), `rescue.wav`, `fuel.wav`, `hit.wav` and `gameover.wav`
 
 ## Build it yourself
@@ -101,7 +103,7 @@ Let the game loop move the player too, a little bit every time it runs, just lik
 - Add `screen.bgpic("assets/space.gif")` for the background. The pictures are in the `assets` folder, so their names start with `assets/`.
 - Register all the pictures with `screen.register_shape()`: `assets/player.gif`, `assets/player_left.gif`, `assets/player_right.gif`, `assets/astronaut.gif` and `assets/asteroid.gif`.
 - Use the pictures instead of shapes: `player.shape("assets/player.gif")`, `astronaut.shape("assets/astronaut.gif")` and `asteroid.shape("assets/asteroid.gif")`. You can delete the `color()` and `shapesize()` lines for the astronauts and asteroids.
-- Make the rocket lean the way it's moving: in `go_left()` add `player.shape("assets/player_left.gif")`, in `go_right()` add `player.shape("assets/player_right.gif")`, and in `stop()` add `player.shape("assets/player.gif")`.
+- Make the ship lean the way it's moving: in `go_left()` add `player.shape("assets/player_left.gif")`, in `go_right()` add `player.shape("assets/player_right.gif")`, and in `stop()` add `player.shape("assets/player.gif")`.
 - Make the writing white with `writer.color("white")` so you can see it on the dark background.
 - The pictures are a different size to the shapes, so change the rescue distance to `25` and the asteroid distance to `40`.
 
@@ -113,7 +115,7 @@ Let the game loop move the player too, a little bit every time it runs, just lik
 
 ### Step 8: A fuel gauge (`step8_fuel.py`)
 
-The rocket now uses up fuel as it flies. Collect fuel cells to top it up. If the tank runs dry, it's game over, even if you still have lives left.
+The ship now uses up fuel as it flies. Collect fuel cells to top it up. If the tank runs dry, it's game over, even if you still have lives left.
 
 - Register `assets/fuel.gif`, write a `make_fuel_cell()` function (just like `make_astronaut()`, with the fuel picture) and make a list with 1 fuel cell in it.
 - Make `fuel = 100` at the top: 100 means full, 0 means empty. Add `fuel` to the `global` line.
@@ -123,13 +125,16 @@ The rocket now uses up fuel as it flies. Collect fuel cells to top it up. If the
 - Make a hidden turtle called `gauge`, and write a `draw_gauge()` function that clears it, writes "Fuel", and draws a filled box with `begin_fill()` and `end_fill()` that is `fuel * 2` steps wide. Make it green when there's lots of fuel, orange when it's getting low and red when it's nearly empty. Draw a white outline 200 steps wide to show a full tank. Call `draw_gauge()` every time the game loop runs.
 - Change the game over check to `if lives == 0 or fuel == 0:`.
 
-### Step 9: Sounds and floating astronauts (`step9_sounds.py`)
+### Step 9: Sounds, floating astronauts and an explosion (`step9_sounds.py`)
 
 - `import subprocess` at the top. It lets Python run other programs, like the Mac's `afplay` sound player.
 - Write `play_sound(sound_file)`, which runs `subprocess.Popen(["afplay", sound_file])`. This plays a sound without pausing the game. Call it when you rescue an astronaut (`assets/rescue.wav`), collect fuel (`assets/fuel.wav`), get hit (`assets/hit.wav`) and at game over (`assets/gameover.wav`).
 - Start the engine sound at the top with `engine = subprocess.Popen(["afplay", "assets/rocket.wav"])`. Write `keep_engine_running()`, which starts it again when it has finished (`engine.poll()` is `None` while a sound is still playing), and call it every time the game loop runs. At game over, stop it with `engine.terminate()`.
 - Swap `make_astronaut()`, `make_fuel_cell()` and `make_asteroid()` for one function, `make_thing(picture)`. They were all the same apart from the picture, so now you just say which picture you want: `make_thing("assets/astronaut.gif")`.
 - Make the astronauts float: give each one `astronaut.drift = random.choice([-1, 1])`, then in the game loop move it sideways by `astronaut.drift` each time. Turn it round (`astronaut.drift = -astronaut.drift`) at the edges, and now and then for no reason.
+- Shake the ship when an asteroid hits it: move it 5 steps left, then use `screen.ontimer(bump_back, 100)` to run a `bump_back()` function 100 milliseconds later that moves it 5 steps right again.
+- Show damage after each hit: register `assets/damage1.gif` and `assets/damage2.gif`, and make a hidden turtle called `damage`. At the end of `game_loop()`, move it onto the ship, then use `lives` to choose the picture: `damage1.gif` (and `showturtle()`) when `lives == 2`, and `damage2.gif` when `lives == 1`. It's made after the ship, so it's drawn on top, like a sticker.
+- Make the ship explode at game over: register `assets/explosion.gif`, make a hidden turtle called `explosion` with that picture, and when the game ends, move it to the ship with `explosion.goto(player.xcor(), player.ycor())`, show it with `showturtle()`, and call `screen.update()` so it appears straight away. The explosion turtle is made after the ship, so turtle draws it on top.
 
 `afplay` only works on a Mac. On Windows, the sounds need different code.
 
@@ -150,4 +155,4 @@ That's the whole game: Step 9 is the same as `space_rescue.py`.
 - Keep a high score in a file so it's remembered after you close the game.
 - Add a rare power-up that gives an extra life.
 - Let the player press **Space** to start a new game after game over.
-- Make a two-player version with a second rocket on the **A** and **D** keys.
+- Make a two-player version with a second ship on the **A** and **D** keys.

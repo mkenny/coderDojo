@@ -129,7 +129,7 @@ def draw_gauge():
     gauge.penup()
 
 # the keys don't move the player, they just say which way to go,
-# and swap the picture so the rocket leans the way it's moving
+# and swap the picture so the ship leans the way it's moving
 def go_left():
     player.direction = -1
     player.shape("assets/player_left.gif")
@@ -152,7 +152,7 @@ def game_loop():
     if player.direction == 1 and player.xcor() < 300:
         player.setx(player.xcor() + 10)
 
-    # the rocket uses up a little fuel every time the game loop runs
+    # the ship uses up a little fuel every time the game loop runs
     fuel = fuel - 0.2
 
     for astronaut in astronauts:

@@ -1,4 +1,4 @@
-# Space Rescue - Step 9: Sounds and floating astronauts
+# Space Rescue - Step 9: Sounds, floating astronauts and an explosion
 #
 # New in this step:
 # - sounds, played with the Mac's afplay (they won't work on Windows)
@@ -6,6 +6,8 @@
 # - an engine sound that plays for the whole game, kept going by keep_engine_running()
 # - one make_thing(picture) function instead of three almost the same ones
 # - astronauts float side to side, using astronaut.drift
+# - the ship shakes and shows damage when an asteroid hits it
+# - the ship explodes at game over
 
 import turtle
 import random
@@ -26,6 +28,9 @@ screen.register_shape("assets/player_left.gif")
 screen.register_shape("assets/player_right.gif")
 screen.register_shape("assets/astronaut.gif")
 screen.register_shape("assets/fuel.gif")
+screen.register_shape("assets/damage1.gif")
+screen.register_shape("assets/damage2.gif")
+screen.register_shape("assets/explosion.gif")
 screen.register_shape("assets/asteroid.gif")
 
 player = turtle.Turtle()
@@ -46,6 +51,17 @@ writer.goto(-330, 310)
 gauge = turtle.Turtle()
 gauge.hideturtle()
 gauge.penup()
+
+# damage that sits on top of the ship, hidden until the first hit
+damage = turtle.Turtle()
+damage.penup()
+damage.hideturtle()
+
+# an explosion that stays hidden until game over
+explosion = turtle.Turtle()
+explosion.shape("assets/explosion.gif")
+explosion.penup()
+explosion.hideturtle()
 
 score = 0
 lives = 3
@@ -132,8 +148,12 @@ def keep_engine_running():
     if engine.poll() is not None:
         engine = subprocess.Popen(["afplay", "assets/rocket.wav"])
 
+# moves the ship back after an asteroid shakes it
+def bump_back():
+    player.setx(player.xcor() + 5)
+
 # the keys don't move the player, they just say which way to go,
-# and swap the picture so the rocket leans the way it's moving
+# and swap the picture so the ship leans the way it's moving
 def go_left():
     player.direction = -1
     player.shape("assets/player_left.gif")
@@ -158,7 +178,7 @@ def game_loop():
 
     keep_engine_running()
 
-    # the rocket uses up a little fuel every time the game loop runs
+    # the ship uses up a little fuel every time the game loop runs
     fuel = fuel - 0.2
 
     for astronaut in astronauts:
@@ -208,6 +228,10 @@ def game_loop():
         if asteroid.distance(player) < 40:
             lives = lives - 1
             play_sound("assets/hit.wav")
+
+            # the hit shakes the ship: 5 steps left now, and back 5 steps right in a moment
+            player.setx(player.xcor() - 5)
+            screen.ontimer(bump_back, 100)
             show_score()
             asteroid.goto(random.randint(-300, 300), 350)
 
@@ -218,11 +242,24 @@ def game_loop():
     if fuel < 0:
         fuel = 0
 
+    # the damage follows the ship, and gets worse as you lose lives
+    damage.goto(player.xcor(), player.ycor())
+    if lives == 2:
+        damage.shape("assets/damage1.gif")
+        damage.showturtle()
+    elif lives == 1:
+        damage.shape("assets/damage2.gif")
+
     draw_gauge()
     screen.update()
 
     # no lives or no fuel left: write GAME OVER and don't run the game loop again
     if lives == 0 or fuel == 0:
+        # the ship explodes
+        explosion.goto(player.xcor(), player.ycor())
+        explosion.showturtle()
+        screen.update()
+
         writer.goto(0, 0)
         writer.write("GAME OVER", align="center", font=("Arial", 40, "bold"))
         engine.terminate()

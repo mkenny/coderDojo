@@ -73,7 +73,7 @@ def show_score():
     writer.write("Score: " + str(score) + "   Lives: " + str(lives), font=("Arial", 18, "bold"))
 
 # the keys don't move the player, they just say which way to go,
-# and swap the picture so the rocket leans the way it's moving
+# and swap the picture so the ship leans the way it's moving
 def go_left():
     player.direction = -1
     player.shape("assets/player_left.gif")
