@@ -8,4 +8,4 @@ Drawing with Python's built-in `turtle` module.
   - `circle.py` – an animated circle
   - `spiral.py` – a spiral that grows outwards
 - [turtle_race](turtle_race/) – bet on a turtle and watch them race, with power-ups along the way
-- [catch_the_stars](catch_the_stars/) – catch falling stars with the arrow keys and dodge the rocks
+- [space_rescue](space_rescue/) – fly a rocket to rescue floating astronauts and dodge the asteroids, built up step by step
